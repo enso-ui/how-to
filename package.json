@@ -1,6 +1,6 @@
 {
   "name": "@enso-ui/how-to",
-  "version": "5.0.1",
+  "version": "5.1.0",
   "description": "Basic how-to package",
   "main": "src/bulma/pages/howTo/Index.vue",
   "repository": {
