@@ -215,6 +215,25 @@ export default {
 </script>
 
 <style>
+.video-player,
+.video-player .video-js,
+.video-player .vjs-tech,
+.video-player .vjs-poster {
+    background-color: var(--bulma-scheme-main-bis);
+}
+
+.video-player .video-js {
+    color: var(--bulma-text);
+}
+
+.video-player .video-js .vjs-control-bar {
+    background: color-mix(
+        in srgb,
+        var(--bulma-scheme-main-ter) 88%,
+        black
+    );
+}
+
 .vjs-custom-skin > .video-js .vjs-big-play-button {
     top: 50%;
     left: 50%;

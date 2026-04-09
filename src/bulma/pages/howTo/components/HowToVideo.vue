@@ -1,16 +1,16 @@
 <template>
-    <card>
+    <card class="how-to-video-card">
         <card-header>
             <template #title>
                 <span class="icon is-small mr-1">
-                    <fa icon="video"/>
+                    <fa :icon="faVideo"/>
                 </span>
                 {{ video.name }}
             </template>
             <template #controls>
                 <card-control v-tooltip="video.description">
                     <span class="icon">
-                        <fa icon="info-circle"/>
+                        <fa :icon="faCircleInfo"/>
                     </span>
                 </card-control>
                 <card-control v-if="!video.poster && canAccess('howTo.posters.store')">
@@ -22,7 +22,7 @@
                         <template #control="{ controlEvents }">
                             <span class="icon"
                                 v-on="controlEvents">
-                                <fa :icon="['far', 'image']"/>
+                                <fa :icon="faImage"/>
                             </span>
                         </template>
                     </enso-uploader>
@@ -30,34 +30,34 @@
                 <card-control v-if="canAccess('howTo.videos.update')">
                     <span class="icon"
                         @click="$emit('edit')">
-                        <fa :icon="['far', 'edit']"/>
+                        <fa :icon="faPenToSquare"/>
                     </span>
                 </card-control>
                 <card-control v-if="canAccess('howTo.videos.update')">
                     <span class="icon"
                         @click="tagging = !tagging;
                             $emit(tagging ? 'start-tagging' : 'stop-tagging')">
-                        <fa :icon="tagging ? 'check' : 'tags'"/>
+                        <fa :icon="tagging ? faCheck : faTags"/>
                     </span>
                 </card-control>
                 <card-control v-if="canAccess('howTo.posters.destroy') && video.poster">
                     <confirmation @confirm="destroyPoster">
                         <span class="icon is-small">
-                            <fa :icon="['far', 'trash-alt']"/>
+                            <fa :icon="faTrashCan"/>
                         </span>
                     </confirmation>
                 </card-control>
                 <card-control v-else-if="canAccess('howTo.videos.destroy')">
                     <confirmation @confirm="destroyVideo">
                         <span class="icon is-small">
-                            <fa :icon="['far', 'trash-alt']"/>
+                            <fa :icon="faTrashCan"/>
                         </span>
                     </confirmation>
                 </card-control>
                 <card-collapse/>
             </template>
         </card-header>
-        <card-content class="is-paddingless">
+        <card-content class="p-0">
             <video-player :options="options()"
                 class="vjs-custom-skin"
                 playsinline/>
@@ -92,9 +92,13 @@
 import 'v-tooltip/dist/v-tooltip.css';
 import { VTooltip } from 'v-tooltip';
 import { FontAwesomeIcon as Fa } from '@fortawesome/vue-fontawesome';
-import { library } from '@fortawesome/fontawesome-svg-core';
-import { faInfo, faTags, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
-import { faTrashAlt, faEdit, faImage } from '@fortawesome/free-regular-svg-icons';
+import {
+    faCheck,
+    faCircleInfo,
+    faTags,
+    faVideo,
+} from '@fortawesome/free-solid-svg-icons';
+import { faTrashCan, faPenToSquare, faImage } from '@fortawesome/free-regular-svg-icons';
 import {
     Card, CardHeader, CardCollapse, CardControl, CardContent,
     CardFooter, CardFooterItem,
@@ -103,8 +107,6 @@ import Confirmation from '@enso-ui/confirmation/bulma';
 import { EnsoUploader } from '@enso-ui/uploader';
 import VideoPlayer from './VideoPlayer.vue';
 import 'video.js/dist/video-js.css';
-
-library.add([faTrashAlt, faInfo, faTags, faEdit, faImage, faInfoCircle]);
 
 export default {
     name: 'HowToVideo',
@@ -141,6 +143,13 @@ export default {
     emits: ['delete', 'edit', 'start-tagging', 'stop-tagging'],
 
     data: () => ({
+        faCheck,
+        faCircleInfo,
+        faImage,
+        faPenToSquare,
+        faTags,
+        faTrashCan,
+        faVideo,
         tagging: false,
     }),
 
@@ -189,9 +198,72 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    .card-footer {
-        white-space: nowrap;
-        overflow: auto;
-        text-overflow: ellipsis;
-    }
+:deep(.how-to-video-card.card) {
+    overflow: hidden;
+}
+
+:deep(.how-to-video-card .card-header-title),
+:deep(.how-to-video-card .card-header-icon),
+:deep(.how-to-video-card .card-header .icon) {
+    color: var(--bulma-text-strong);
+}
+
+:deep(.how-to-video-card > .card-content) {
+    color: var(--bulma-text);
+}
+
+:deep(.how-to-video-card > .card-footer),
+:deep(.how-to-video-card .card-footer-item) {
+    background-color: var(--bulma-card-footer-background-color) !important;
+    border-color: var(--bulma-border);
+    color: var(--bulma-text);
+}
+
+:deep(.how-to-video-card .card-content .video-js),
+:deep(.how-to-video-card .card-content .vjs-poster),
+:deep(.how-to-video-card .card-content .vjs-tech) {
+    background-color: var(--bulma-scheme-main-bis) !important;
+}
+
+:deep(.how-to-video-card .card-content .video-js) {
+    color: var(--bulma-text);
+}
+
+:deep(.how-to-video-card .card-content .vjs-control-bar) {
+    background: color-mix(
+        in srgb,
+        var(--bulma-scheme-main-ter) 88%,
+        black
+    );
+}
+
+:deep(.how-to-video-card .card-content .vjs-big-play-button) {
+    border-color: color-mix(in srgb, var(--bulma-primary) 35%, var(--bulma-border));
+    background-color: color-mix(
+        in srgb,
+        var(--bulma-scheme-main) 80%,
+        black
+    );
+    color: var(--bulma-text-strong);
+}
+
+:deep(.how-to-video-card .card-control) {
+    color: var(--bulma-text-light);
+}
+
+:deep(.how-to-video-card .card-control:hover),
+:deep(.how-to-video-card .card-control:focus) {
+    color: var(--bulma-text-strong);
+}
+
+:deep(.how-to-video-card .tag) {
+    background-color: var(--bulma-scheme-main-ter);
+    color: var(--bulma-text-strong);
+}
+
+.card-footer {
+    white-space: nowrap;
+    overflow: auto;
+    text-overflow: ellipsis;
+}
 </style>

@@ -3,7 +3,7 @@
         <div class="column is-three-quarters-desktop is-full-touch">
             <fade enter="down"
                 leave="up">
-                <div class="columns"
+                <div class="columns how-to-editor"
                     v-if="addingVideo || editingVideo">
                     <div class="column is-narrow">
                         <div class="control">
@@ -35,9 +35,9 @@
                                     v-if="addingVideo">
                                     <template #control="{ controlEvents }">
                                         <a v-on="controlEvents">
-                                            <span class="file-cta">
+                                            <span class="file-cta how-to-editor__upload-cta">
                                                   <span class="file-icon">
-                                                    <fa icon="upload"/>
+                                                    <fa :icon="faUpload"/>
                                                   </span>
                                                   <span class="file-label">
                                                     {{ i18n('Video') }}…
@@ -50,7 +50,7 @@
                                     @click="video = video; update()"
                                     v-if="editingVideo">
                                     <span class="icon">
-                                        <fa icon="check"/>
+                                        <fa :icon="faCheck"/>
                                     </span>
                                 </a>
                             </div>
@@ -61,7 +61,7 @@
                                 <a class="button is-danger is-outlined"
                                     @click="reset()">
                                     <span class="icon">
-                                        <fa icon="ban"/>
+                                        <fa :icon="faBan"/>
                                     </span>
                                 </a>
                             </div>
@@ -73,7 +73,7 @@
                 <div class="column is-half"
                     v-for="(vid, index) in filteredVideos"
                     :key="vid.id">
-                <how-to-video class="is-rounded raises-on-hover"
+                <how-to-video class="is-rounded"
                     :video="vid"
                     :tags="tags"
                     @start-tagging="video = vid; taggingId = video.id"
@@ -93,16 +93,16 @@
                     {{ i18n('Add video') }}
                 </span>
                 <span class="icon is-small">
-                    <fa icon="plus"/>
+                    <fa :icon="faPlus"/>
                 </span>
             </a>
-            <div class="box has-background-light raises-on-hover">
+            <div class="box how-to-tags-panel">
                 <div class="level">
                     <div class="level-left">
                         <div class="level-item">
                             <label class="label">
                                 <span class="icon is-small">
-                                    <fa icon="tags"
+                                    <fa :icon="faTags"
                                         size="xs"/>
                                 </span>
                                 {{ i18n('Tags') }}
@@ -115,28 +115,28 @@
                                 @click="addTag"
                                 v-if="canAccess('howTo.tags.store') && query && tagIsNew">
                                 <span class="icon is-small">
-                                    <fa icon="check"/>
+                                    <fa :icon="faCheck"/>
                                 </span>
                             </a>
                             <a class="button is-small is-outlined is-danger"
                                 v-if="canAccess('howTo.tags.update') && !query && selectedTag"
                                 @click="editingTag = true">
                                 <span class="icon is-small">
-                                    <fa icon="pencil-alt"/>
+                                    <fa :icon="faPen"/>
                                 </span>
                             </a>
                             <a class="button is-small is-outlined is-success ml-1"
                                 v-if="editingTag"
                                 @click="editingTag = false; updateTag()">
                                 <span class="icon is-small">
-                                    <fa icon="check"/>
+                                    <fa :icon="faCheck"/>
                                 </span>
                             </a>
                             <a class="button is-small is-outlined ml-1"
                                 v-if="editingTag"
                                 @click="editingTag = false">
                                 <span class="icon is-small">
-                                    <fa icon="ban"/>
+                                    <fa :icon="faBan"/>
                                 </span>
                             </a>
                         </div>
@@ -180,19 +180,16 @@
 import { focus } from '@enso-ui/directives';
 import { Fade } from '@enso-ui/transitions';
 import { EnsoUploader } from '@enso-ui/uploader/bulma';
-import { library } from '@fortawesome/fontawesome-svg-core';
 import {
     faBan,
     faCheck,
-    faPencilAlt,
+    faPen,
     faPlus,
     faTags,
     faUpload,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as Fa } from '@fortawesome/vue-fontawesome';
 import HowToVideo from './components/HowToVideo.vue';
-
-library.add([faPlus, faUpload, faBan, faCheck, faPencilAlt, faTags]);
 
 export default {
     name: 'Index',
@@ -206,6 +203,12 @@ export default {
     inject: ['canAccess', 'errorHandler', 'http', 'i18n', 'route', 'toastr'],
 
     data: () => ({
+        faBan,
+        faCheck,
+        faPen,
+        faPlus,
+        faTags,
+        faUpload,
         videos: [],
         query: '',
         tags: [],
@@ -335,3 +338,44 @@ export default {
     },
 };
 </script>
+
+<style lang="scss">
+.how-to-editor__upload-cta {
+    background-color: var(--enso-filter-control-surface);
+    color: var(--bulma-text-strong);
+
+    &:hover,
+    &:focus {
+        background-color: var(--enso-filter-surface);
+        color: var(--bulma-text-strong);
+    }
+}
+
+.how-to-editor {
+    .file-cta {
+        color: var(--bulma-text-strong);
+    }
+}
+
+.how-to-tags-panel.box {
+    color: var(--bulma-text);
+
+    .label {
+        color: var(--bulma-text-strong);
+    }
+
+    .tag.is-white,
+    .tag.is-delete.is-white {
+        background-color: var(--bulma-scheme-main-ter);
+        color: var(--bulma-text-strong);
+    }
+
+    .tag.is-delete.is-white:hover {
+        background-color: color-mix(
+            in srgb,
+            var(--bulma-danger) 16%,
+            var(--bulma-scheme-main-ter)
+        );
+    }
+}
+</style>
