@@ -13,11 +13,6 @@
 </template>
 
 <script>
-// lib
-import _videojs from 'video.js';
-
-const videojs = window.videojs || _videojs;
-
 // as of videojs 6.6.0
 const DEFAULT_EVENTS = [
     'loadeddata',
@@ -30,6 +25,17 @@ const DEFAULT_EVENTS = [
     'ended',
     'error',
 ];
+
+let videojsPromise;
+
+const getVideojs = async () => {
+    if (!videojsPromise) {
+        videojsPromise = import('video.js')
+            .then(({ default: videojs }) => window.videojs || videojs);
+    }
+
+    return videojsPromise;
+};
 
 // export
 export default {
@@ -127,7 +133,8 @@ export default {
     },
 
     methods: {
-        initialize() {
+        async initialize() {
+            const videojs = await getVideojs();
             // videojs options
             const videoOptions = { ...this.globalOptions, ...this.options };
 

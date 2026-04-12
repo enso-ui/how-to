@@ -105,8 +105,9 @@ import {
 } from '@enso-ui/card/bulma';
 import Confirmation from '@enso-ui/confirmation/bulma';
 import { EnsoUploader } from '@enso-ui/uploader';
-import VideoPlayer from './VideoPlayer.vue';
 import 'video.js/dist/video-js.css';
+
+const VideoPlayer = () => import('./VideoPlayer.vue');
 
 export default {
     name: 'HowToVideo',
