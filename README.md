@@ -1,4 +1,4 @@
-# How To
+# How to
 
 [![License](https://img.shields.io/badge/license-MIT-10b981.svg)](https://github.com/enso-ui/how-to/blob/master/LICENSE)
 [![Stable](https://img.shields.io/badge/stable-5.2.4-2563eb.svg)](https://www.npmjs.com/package/@enso-ui/how-to)
