@@ -1,7 +1,7 @@
 {
   "name": "@enso-ui/how-to",
   "version": "5.2.4",
-  "description": "Basic how-to package",
+  "description": "How-to video management pages for Enso UI",
   "main": "src/bulma/pages/howTo/Index.vue",
   "repository": {
     "type": "git",
