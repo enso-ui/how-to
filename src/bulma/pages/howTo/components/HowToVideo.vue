@@ -59,7 +59,6 @@
         </card-header>
         <card-content class="p-0">
             <video-player :options="options()"
-                class="vjs-custom-skin"
                 playsinline/>
         </card-content>
         <card-footer>
@@ -105,7 +104,6 @@ import {
 } from '@enso-ui/card/bulma';
 import Confirmation from '@enso-ui/confirmation/bulma';
 import { EnsoUploader } from '@enso-ui/uploader';
-import 'video.js/dist/video-js.css';
 
 const VideoPlayer = () => import('./VideoPlayer.vue');
 
@@ -163,10 +161,9 @@ export default {
     methods: {
         options() {
             return {
+                controls: true,
                 muted: false,
                 language: 'en',
-                playbackRates: [0.7, 1.0, 1.5, 2.0],
-                aspectRatio: '16:9',
                 sources: [{
                     type: 'video/mp4',
                     src: this.route('howTo.videos.show', this.video.id),
@@ -220,32 +217,12 @@ export default {
     color: var(--bulma-text);
 }
 
-:deep(.how-to-video-card .card-content .video-js),
-:deep(.how-to-video-card .card-content .vjs-poster),
-:deep(.how-to-video-card .card-content .vjs-tech) {
+:deep(.how-to-video-card .card-content .native-video) {
     background-color: var(--bulma-scheme-main-bis) !important;
 }
 
-:deep(.how-to-video-card .card-content .video-js) {
+:deep(.how-to-video-card .card-content .native-video) {
     color: var(--bulma-text);
-}
-
-:deep(.how-to-video-card .card-content .vjs-control-bar) {
-    background: color-mix(
-        in srgb,
-        var(--bulma-scheme-main-ter) 88%,
-        black
-    );
-}
-
-:deep(.how-to-video-card .card-content .vjs-big-play-button) {
-    border-color: color-mix(in srgb, var(--bulma-primary) 35%, var(--bulma-border));
-    background-color: color-mix(
-        in srgb,
-        var(--bulma-scheme-main) 80%,
-        black
-    );
-    color: var(--bulma-text-strong);
 }
 
 :deep(.how-to-video-card .card-control) {

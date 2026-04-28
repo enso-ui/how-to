@@ -1,6 +1,6 @@
 {
   "name": "@enso-ui/how-to",
-  "version": "5.2.4",
+  "version": "5.2.5",
   "description": "How-to video management pages for Enso UI",
   "main": "src/bulma/pages/howTo/Index.vue",
   "repository": {
@@ -22,8 +22,7 @@
     "@fortawesome/free-regular-svg-icons": "^7.2.0",
     "@fortawesome/free-solid-svg-icons": "^7.2.0",
     "@fortawesome/vue-fontawesome": "3.1.3",
-    "v-tooltip": "^4.0.0-beta.2",
-    "video.js": "^7.0"
+    "v-tooltip": "^4.0.0-beta.2"
   },
   "peerDependencies": {
     "@enso-ui/card": "^4.0.0",

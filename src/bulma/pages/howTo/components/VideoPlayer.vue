@@ -1,6 +1,25 @@
 <template>
     <div class="video-player" v-if="reseted">
-        <video class="video-js" ref="video">
+        <video class="native-video"
+            ref="video"
+            :controls="controls"
+            :muted="options.muted"
+            :poster="options.poster"
+            :preload="options.preload || 'metadata'"
+            @loadeddata="emitState('loadeddata', true)"
+            @canplay="emitState('canplay', true)"
+            @canplaythrough="emitState('canplaythrough', true)"
+            @play="emitState('play', true)"
+            @pause="emitState('pause', true)"
+            @waiting="emitState('waiting', true)"
+            @playing="emitState('playing', true)"
+            @ended="emitState('ended', true)"
+            @error="emitState('error', true)"
+            @timeupdate="emitState('timeupdate', currentTime())">
+            <source v-for="source in sources"
+                :key="source.src"
+                :src="source.src"
+                :type="source.type">
             <track v-for="crtTrack in trackList"
                :key="crtTrack.src"
                :kind="crtTrack.kind"
@@ -13,31 +32,6 @@
 </template>
 
 <script>
-// as of videojs 6.6.0
-const DEFAULT_EVENTS = [
-    'loadeddata',
-    'canplay',
-    'canplaythrough',
-    'play',
-    'pause',
-    'waiting',
-    'playing',
-    'ended',
-    'error',
-];
-
-let videojsPromise;
-
-const getVideojs = async () => {
-    if (!videojsPromise) {
-        videojsPromise = import('video.js')
-            .then(({ default: videojs }) => window.videojs || videojs);
-    }
-
-    return videojsPromise;
-};
-
-// export
 export default {
     name: 'VideoPlayer',
 
@@ -102,43 +96,38 @@ export default {
 
     data() {
         return {
-            player: null,
             reseted: true,
         };
+    },
+
+    computed: {
+        controls() {
+            return this.options.controls ?? this.globalOptions.controls ?? true;
+        },
+        sources() {
+            return this.options.sources ?? [];
+        },
     },
 
     watch: {
         options: {
             deep: true,
-            handler(options) {
-                this.dispose(() => {
-                    if (options && options.sources && options.sources.length) {
-                        this.initialize();
-                    }
-                });
+            handler() {
+                this.reload();
             },
         },
     },
 
     mounted() {
-        if (!this.player) {
-            this.initialize();
-        }
+        this.initialize();
     },
 
     beforeUnmount() {
-        if (this.player) {
-            this.dispose();
-        }
+        this.dispose();
     },
 
     methods: {
-        async initialize() {
-            const videojs = await getVideojs();
-            // videojs options
-            const videoOptions = { ...this.globalOptions, ...this.options };
-
-            // ios fullscreen
+        initialize() {
             if (this.playsinline) {
                 this.$refs.video.setAttribute('playsinline', this.playsinline);
                 this.$refs.video.setAttribute('webkit-playsinline', this.playsinline);
@@ -153,69 +142,42 @@ export default {
                 this.$refs.video.setAttribute('crossOrigin', this.crossOrigin);
             }
 
-            // emit event
-            const emitPlayerState = (event, value) => {
-                if (event) {
-                    this.$emit(event, this.player);
-                }
-                if (value) {
-                    this.$emit(this.customEventName, { [event]: value });
-                }
-            };
-
-            // avoid error "VIDEOJS: ERROR: Unable to find plugin: __ob__"
-            if (videoOptions.plugins) {
-                delete videoOptions.plugins.__ob__;
-            }
-
-            // videoOptions
-            // console.log('videoOptions', videoOptions)
-
-            // player
-            const self = this;
-            this.player = videojs(this.$refs.video, videoOptions, function () {
-                // events
-                const events = DEFAULT_EVENTS.concat(self.events).concat(self.globalEvents);
-
-                // watch events
-                const onEdEvents = {};
-                for (let i = 0; i < events.length; i++) {
-                    if (typeof events[i] === 'string' && onEdEvents[events[i]] === undefined) {
-                        (event => {
-                            onEdEvents[event] = null;
-                            this.on(event, () => {
-                                emitPlayerState(event, true);
-                            });
-                        })(events[i]);
-                    }
+            this.$nextTick(() => {
+                if (this.start) {
+                    this.$refs.video.currentTime = this.start;
                 }
 
-                // watch timeupdate
-                this.on('timeupdate', function () {
-                    emitPlayerState('timeupdate', this.currentTime());
-                });
-
-                // player readied
-                self.$emit('ready', this);
+                this.$emit('ready', this.$refs.video);
+            });
+        },
+        currentTime() {
+            return this.$refs.video?.currentTime ?? 0;
+        },
+        emitState(event, value) {
+            this.$emit(event, this.$refs.video);
+            this.$emit(this.customEventName, { [event]: value });
+        },
+        reload() {
+            this.$nextTick(() => {
+                this.$refs.video?.load();
             });
         },
         dispose(callback) {
-            if (this.player && this.player.dispose) {
-                if (this.player.techName_ !== 'Flash') {
-                    this.player.pause && this.player.pause();
-                }
-                this.player.dispose();
-                this.player = null;
+            if (this.$refs.video) {
+                this.$refs.video.pause();
+                this.$refs.video.removeAttribute('src');
+                this.$refs.video.load();
+            }
+
+            this.$nextTick(() => {
+                this.reseted = false;
                 this.$nextTick(() => {
-                    this.reseted = false;
+                    this.reseted = true;
                     this.$nextTick(() => {
-                        this.reseted = true;
-                        this.$nextTick(() => {
-                            callback && callback();
-                        });
+                        callback && callback();
                     });
                 });
-            }
+            });
         },
     },
 };
@@ -223,28 +185,14 @@ export default {
 
 <style>
 .video-player,
-.video-player .video-js,
-.video-player .vjs-tech,
-.video-player .vjs-poster {
+.video-player .native-video {
     background-color: var(--bulma-scheme-main-bis);
 }
 
-.video-player .video-js {
+.video-player .native-video {
     color: var(--bulma-text);
-}
-
-.video-player .video-js .vjs-control-bar {
-    background: color-mix(
-        in srgb,
-        var(--bulma-scheme-main-ter) 88%,
-        black
-    );
-}
-
-.vjs-custom-skin > .video-js .vjs-big-play-button {
-    top: 50%;
-    left: 50%;
-    margin-left: -1.5em;
-    margin-top: -1em
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
 }
 </style>
